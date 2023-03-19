@@ -1,0 +1,1 @@
+export const openaiKey = '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'
