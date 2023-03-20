@@ -1,6 +1,5 @@
 import LRUCache from "lru-cache";
-import { NextApiRequest } from "next";
-import { ChatCompletionRequestMessage, ChatCompletionResponseMessage, CreateChatCompletionResponseChoicesInner } from "openai";
+import { ChatCompletionRequestMessage, CreateChatCompletionResponseChoicesInner } from "openai";
 import { openaiService } from "src/backend/network/chatgpt";
 
 const lruCache = new LRUCache({
@@ -12,6 +11,9 @@ const createChatCompletion = async (messages: ChatCompletionRequestMessage[]) =>
     return await openaiService.createChatCompletion({
         model: 'gpt-3.5-turbo',
         messages: messages
+    }, {
+        timeout: 40000,
+        timeoutErrorMessage: 'Request timed out'
     })
 }
 

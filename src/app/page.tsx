@@ -1,91 +1,123 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from './page.module.css'
+"use client"
 
-const inter = Inter({ subsets: ['latin'] })
+import { ChatCompletionRequestMessage, ChatCompletionResponseMessage } from "openai"
+import { useState } from "react"
+import ChatRoom from "src/components/chatroom"
+import { generateRandomId } from "src/libs/text"
+import { deleteChatApi, sendChatMessageApi } from "src/networks/chat"
+import { IChatMessageAndToken } from "src/typing/chatgpt"
 
 export default function Home() {
+  const [currentChatMessages, setCurrentChatMessages] = useState<IChatMessageAndToken[]>([])
+  const [chatInput, setChatInput] = useState<string>("")
+
+  const sendMessage = async (message: string) => {
+    const newMessages = [...currentChatMessages]
+    const requestMessage: ChatCompletionRequestMessage[] = [
+      {
+        role: "user",
+        content: chatInput
+      }
+    ]
+    const userMessage: IChatMessageAndToken = {
+      messageId: generateRandomId(),
+      tokenUsed: undefined,
+      message: {
+        role: "user",
+        content: chatInput
+      }
+    }
+
+    newMessages.push(userMessage)
+
+    setChatInput("")
+    setCurrentChatMessages(newMessages)
+
+    sendChatMessageApi(requestMessage).then((result) => {
+      const responseMessages = result.choices.reduce((acc, choice) => {
+        const replacedMessage = choice.message?.content.replaceAll("\n", "</br>")
+        const message: ChatCompletionResponseMessage = {
+          role: choice.message?.role || "assistant",
+          content: replacedMessage || ""
+        }
+
+        const chatItem: IChatMessageAndToken = {
+          messageId: result.created.toString(),
+          tokenUsed: result.usage,
+          message: message
+        }
+
+        acc.push(chatItem)
+
+        return acc
+      }, [] as IChatMessageAndToken[])
+
+      const newChatMessages = [...newMessages, ...responseMessages]
+
+      setCurrentChatMessages(newChatMessages)
+    }).catch((error) => {
+      const errorMessage: IChatMessageAndToken = {
+        messageId: generateRandomId(),
+        tokenUsed: undefined,
+        message: {
+          role: "system",
+          content: "系統錯誤，請稍後再試"
+        }
+      }
+
+      const newChatMessages = [...newMessages, errorMessage]
+
+      setCurrentChatMessages(newChatMessages)
+    })
+  }
+
+  const clearChat = () => {
+    deleteChatApi().then(() => {
+      setCurrentChatMessages([])
+    })
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    sendMessage(chatInput)
+  }
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="px-4 flex flex-col items-center">
+      <h1
+        className="text-4xl font-bold text-center"
+      >ChatGPT</h1>
+      <div className="w-9/12">
+        <ChatRoom messages={currentChatMessages} />
+        <div
+          className="w-full flex justify-between"
+        >
+          <div className="w-40">
+            <button
+              type="button"
+              onClick={clearChat}
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+            >清空對話</button>
+          </div>
+          <form
+            action="POST"
+            onSubmit={handleSubmit}
+            className="w-full justify-end flex"
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+            <input
+              className="border-gray-600 rounded-lg border py-2 w-6/12 px-2"
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
             />
-          </a>
+            <button
+              className="bg-green-500 hover:bg-green-600 text-white font-bold ml-2 py-2 px-4 rounded"
+              type="submit"
+            >Send</button>
+          </form>
         </div>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   )
 }
