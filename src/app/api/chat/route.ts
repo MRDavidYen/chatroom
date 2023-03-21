@@ -30,7 +30,8 @@ export async function PUT(request: NextRequest) {
             headers: {
                 'Set-Cookie': serialize(chatIdCookieName, chatCompletion.data.id, {
                     maxAge: 1200,
-                    path: '/'
+                    path: '/',
+                    sameSite: 'lax'
                 })
             }
         })
