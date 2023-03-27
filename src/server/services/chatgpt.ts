@@ -1,6 +1,6 @@
 import LRUCache from "lru-cache";
 import { ChatCompletionRequestMessage, CreateChatCompletionResponseChoicesInner } from "openai";
-import { openaiService } from "src/backend/network/chatgpt";
+import { openaiService } from "src/server/network/chatgpt";
 
 const lruCache = new LRUCache({
     max: 100,

@@ -1,13 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import { serialize, parse } from "cookie"
-import { chatIdCookieName } from "src/backend/constants/caching"
+import { chatIdCookieName } from "src/server/constants/caching"
 import { ChatCompletionRequestMessage } from "openai"
 import {
     convertResponseToRequestMessage,
     createChatCompletion,
     getChatData,
     storeChatData
-} from "src/backend/services/chatgpt"
+} from "src/server/services/chatgpt"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function PUT(request: NextRequest) {
