@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import { serialize, parse } from "cookie"
-import { chatIdCookieName } from "src/server/constants/caching"
+import { chatIdCookieName } from "src/constants/caching"
 import { ChatCompletionRequestMessage } from "openai"
 import {
     convertResponseToRequestMessage,

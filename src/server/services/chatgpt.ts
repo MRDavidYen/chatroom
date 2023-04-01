@@ -17,6 +17,16 @@ const createChatCompletion = async (messages: ChatCompletionRequestMessage[]) =>
     })
 }
 
+const createChatCompletionStreaming = async (messages: ChatCompletionRequestMessage[]) => {
+    return await openaiService.createChatCompletion({
+        model: 'gpt-3.5-turbo',
+        messages: messages,
+        stream: true
+    }, {
+        responseType: 'stream'
+    })
+}
+
 const storeChatData = (chatId: string, messages: ChatCompletionRequestMessage[]) => {
     lruCache.set(chatId, messages)
 }
@@ -36,6 +46,7 @@ const convertResponseToRequestMessage = (respMessages: CreateChatCompletionRespo
 
 export {
     createChatCompletion,
+    createChatCompletionStreaming,
     storeChatData,
     getChatData,
     convertResponseToRequestMessage
