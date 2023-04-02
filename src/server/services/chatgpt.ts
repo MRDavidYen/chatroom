@@ -1,11 +1,6 @@
-import LRUCache from "lru-cache";
 import { ChatCompletionRequestMessage, CreateChatCompletionResponseChoicesInner } from "openai";
-import { openaiService } from "src/server/network/chatgpt";
-
-const lruCache = new LRUCache({
-    max: 100,
-    ttl: 1000 * 60 * 60
-})
+import { openaiService } from "src/server/utilities/chatgpt";
+import { getCacheFromMemory, setCacheToMemory } from "../persistants/cache";
 
 const createChatCompletion = async (messages: ChatCompletionRequestMessage[]) => {
     return await openaiService.createChatCompletion({
@@ -22,17 +17,15 @@ const createChatCompletionStreaming = async (messages: ChatCompletionRequestMess
         model: 'gpt-3.5-turbo',
         messages: messages,
         stream: true
-    }, {
-        responseType: 'stream'
     })
 }
 
 const storeChatData = (chatId: string, messages: ChatCompletionRequestMessage[]) => {
-    lruCache.set(chatId, messages)
+    setCacheToMemory(chatId, messages)
 }
 
 const getChatData = (chatId: string) => {
-    return lruCache.get(chatId) as ChatCompletionRequestMessage[] | undefined
+    return getCacheFromMemory<ChatCompletionRequestMessage[]>(chatId)
 }
 
 const convertResponseToRequestMessage = (respMessages: CreateChatCompletionResponseChoicesInner[]) => {

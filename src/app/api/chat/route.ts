@@ -9,6 +9,7 @@ import {
     storeChatData
 } from "src/server/services/chatgpt"
 import { NextRequest, NextResponse } from "next/server"
+import { setCookie } from "src/server/persistants/cookies"
 
 export async function PUT(request: NextRequest) {
     let messages: ChatCompletionRequestMessage[] = await request.json()
@@ -25,23 +26,18 @@ export async function PUT(request: NextRequest) {
     const chatCompletion = await createChatCompletion(messages)
 
     if (chatCompletion && chatCompletion.status === 200) {
-        const resp = new Response(JSON.stringify(chatCompletion.data), {
-            status: 200,
-            headers: {
-                'Set-Cookie': serialize(chatIdCookieName, chatCompletion.data.id, {
-                    maxAge: 1200,
-                    path: '/',
-                    sameSite: 'lax'
-                })
-            }
+        const nextResp = new NextResponse(JSON.stringify(chatCompletion.data), {
+            status: 200
         })
+
+        setCookie(nextResp, chatIdCookieName, chatCompletion.data.id)
 
         const newMessages = convertResponseToRequestMessage(chatCompletion.data.choices)
         const storeMessages = [...messages, ...newMessages]
 
         storeChatData(chatCompletion.data.id, storeMessages)
 
-        return resp
+        return nextResp
     } else {
         return new Response(JSON.stringify({ message: 'Something went wrong' }), {
             status: 500
