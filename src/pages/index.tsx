@@ -1,10 +1,8 @@
-"use client"
-
 import { ChatCompletionRequestMessage, ChatCompletionResponseMessage } from "openai"
 import { useState } from "react"
 import ChatRoom from "src/components/chatroom"
 import { generateRandomId } from "src/libs/text"
-import { deleteChatApi, sendChatMessageApi } from "src/networks/chat"
+import { deleteChatApi, sendChatMessageApi } from "src/endpoints/chat"
 import { IChatMessageAndToken } from "src/typing/chatgpt"
 
 export default function Home() {

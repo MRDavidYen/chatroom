@@ -12,11 +12,13 @@ const createChatCompletion = async (messages: ChatCompletionRequestMessage[]) =>
     })
 }
 
-const createChatCompletionStreaming = async (messages: ChatCompletionRequestMessage[]) => {
+const createChatCompletionStreaming = async (messages: ChatCompletionRequestMessage[]): Promise<any> => {
     return await openaiService.createChatCompletion({
         model: 'gpt-3.5-turbo',
         messages: messages,
         stream: true
+    }, {
+        responseType: "stream"
     })
 }
 

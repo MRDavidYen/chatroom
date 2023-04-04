@@ -2,7 +2,9 @@ import { ChatCompletionResponseMessage, CreateChatCompletionResponse } from "ope
 import { fetchWithBody } from ".";
 
 const sendChatMessageApi = async (message: ChatCompletionResponseMessage[]): Promise<CreateChatCompletionResponse> => {
-    const resp = await fetchWithBody("/api/chat", message, "PUT")
+    const resp = await fetchWithBody("/api/chat", message, {
+        method: "PUT"
+    })
 
     if (resp.status === 200) {
         return resp.json()
