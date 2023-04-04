@@ -43,7 +43,7 @@ async function POST(request: NextApiRequest, response: NextApiResponse) {
                         const parsed = JSON.parse(message) as ChatStreamingChunk
                         console.log(parsed.choices[0].delta)
 
-                        response.write(`data: ${JSON.stringify(parsed.choices[0])}\n\n`)
+                        response.write(`data: ${JSON.stringify(parsed)}\n\n`)
 
                     } catch (error) {
                         console.error('Could not JSON parse stream message', message, error)
@@ -54,10 +54,10 @@ async function POST(request: NextApiRequest, response: NextApiResponse) {
 
             // setCookie(response, chatIdCookieName, chatCompletion.data.id)
 
-            const newMessages = convertResponseToRequestMessage(chatCompletion.data.choices)
-            const storeMessages = [...messages, ...newMessages]
+            // const newMessages = convertResponseToRequestMessage(chatCompletion.data.choices)
+            // const storeMessages = [...messages, ...newMessages]
 
-            storeChatData(chatCompletion.data.id, storeMessages)
+            // storeChatData(chatCompletion.data.id, storeMessages)
         } else {
             return response.status(500).json({ message: 'Could not create chat' })
         }

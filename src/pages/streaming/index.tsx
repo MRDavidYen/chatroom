@@ -1,6 +1,7 @@
 import { ChatCompletionRequestMessage } from "openai"
 import { useEffect, useRef } from "react"
 import { fetchSSE } from "src/endpoints"
+import { ChatStreamingChunk } from "src/typing/chatgpt"
 
 const StreamingChat = () => {
     const abortControllerRef = useRef<AbortController>(new AbortController())
@@ -9,11 +10,11 @@ const StreamingChat = () => {
         const requestMessage: ChatCompletionRequestMessage[] = [
             {
                 role: "user",
-                content: "Hello, I am David."
+                content: "Can you write a simple JS code for example?"
             }
         ]
 
-        const generator = await fetchSSE("/api/streaming", requestMessage, abort)
+        const generator = await fetchSSE<ChatCompletionRequestMessage[], ChatStreamingChunk>("/api/streaming", requestMessage, abort)
 
         for await (const message of generator) {
             console.log(message)
