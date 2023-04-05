@@ -27,14 +27,12 @@ const ErrorBadge = ({ ...props }: ErrorBadgeProps) => {
     }, [props.message])
 
     useEffect(() => {
-        if (errorBoundaryContext.error) {
-            receivedError(errorBoundaryContext.error)
-        }
+        receivedError(errorBoundaryContext.error.message)
     }, [errorBoundaryContext.error])
 
     return (
         show ?
-            <div className="fixed bottom-4 right-4 bg-red-600 text-red-50">
+            <div className="fixed bottom-4 right-4 bg-red-600 text-red-50 py-2 px-4 rounded-md max-w-[50vw]">
                 <span className="font-bold">{error}</span>
             </div>
             : <></>

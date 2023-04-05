@@ -19,15 +19,22 @@ const useApi = (): UseApiReturnType => {
 
         setFetchInProgress((prev) => prev - 1)
 
-        if (!response.ok) {
-            const error = await response.json()
+        try {
+            if (!response.ok) {
+                const error = await response.json()
 
-            if (error && error.message)
-                errorBoundaryContext.setError(error.message)
-            return undefined
+                if (error && error.message)
+                    errorBoundaryContext.setError(error.message)
+
+                return Promise.reject(error)
+            }
+
+            return await response.json()
+        } catch (error: any) {
+            errorBoundaryContext.setError(error.message)
+
+            return Promise.reject(error)
         }
-
-        return await response.json()
     }, [])
 
     return {

@@ -34,7 +34,7 @@ export default function Home() {
     setCurrentChatMessages(newMessages)
 
     fetchApi<ChatCompletionRequestMessage[], CreateChatCompletionResponse>(chatApis.sendChatMessageApi, requestMessage).then((result) => {
-      if(!result) return
+      if (!result) return
 
       const responseMessages = result.choices.reduce((acc, choice) => {
         const replacedMessage = choice.message?.content.replaceAll("\n", "</br>")
@@ -55,6 +55,19 @@ export default function Home() {
       }, [] as IChatMessageAndToken[])
 
       const newChatMessages = [...newMessages, ...responseMessages]
+
+      setCurrentChatMessages(newChatMessages)
+    }).catch((error) => {
+      const errorMessage: IChatMessageAndToken = {
+        messageId: generateRandomId(),
+        tokenUsed: undefined,
+        message: {
+          role: "system",
+          content: "系統錯誤，請稍後再試"
+        }
+      }
+
+      const newChatMessages = [...newMessages, errorMessage]
 
       setCurrentChatMessages(newChatMessages)
     })

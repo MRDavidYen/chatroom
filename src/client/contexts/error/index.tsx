@@ -1,25 +1,44 @@
 import { createContext, useState } from "react";
+import { generateRandomId } from "src/client/libs/text";
 
 const ErrorBoundaryContext = createContext<ErrorBoundaryContextType>({
-    error: "",
+    error: {
+        message: "",
+        identifier: ""
+    },
     setError: () => { }
 })
 
 const ErrorBoundaryProvider = ({ ...props }: ErrorBoundaryContextProperties) => {
-    const [error, setError] = useState<string>("")
+    const [error, setError] = useState<ErrorProperties>({
+        message: "",
+        identifier: ""
+    })
+
+    const setErrorWrapper = (message: string) => {
+        setError({
+            message,
+            identifier: generateRandomId()
+        })
+    }
 
     return (
         <ErrorBoundaryContext.Provider value={{
             error,
-            setError
+            setError: setErrorWrapper
         }}>
             {props.children}
         </ErrorBoundaryContext.Provider>
     )
 }
 
+type ErrorProperties = {
+    message: string
+    identifier: string
+}
+
 type ErrorBoundaryContextType = {
-    error: string
+    error: ErrorProperties
     setError: (error: string) => void
 }
 
