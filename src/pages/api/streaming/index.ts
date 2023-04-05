@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from "next/server"
 import { ChatCompletionRequestMessage } from "openai"
 import { chatIdCookieName } from "src/constants/caching"
-import { setCookie } from "src/server/persistants/cookies"
-import { convertResponseToRequestMessage, createChatCompletionStreaming, getChatData, storeChatData } from "src/server/services/chatgpt"
+import { createChatCompletionStreaming, getChatData, storeChatDataIntoMemory } from "src/server/services/chatgpt"
 import { AxiosResponse } from "axios"
 import { ChatStreamingChunk, ChatStreamingCompletionResponse } from "src/typing/chatgpt"
 import { NextApiRequest, NextApiResponse } from "next"
-import { apiMiddleware, MultipleMethodHandler } from "src/libs/middleware"
+import { apiMiddleware, MultipleMethodHandler } from "src/server/libs/middleware"
 
 async function POST(request: NextApiRequest, response: NextApiResponse) {
     try {
@@ -20,6 +18,8 @@ async function POST(request: NextApiRequest, response: NextApiResponse) {
                 messages = [...pastMessages, ...messages]
             }
         }
+
+        storeChatDataIntoMemory(chatId, messages)
 
         const chatCompletion = await createChatCompletionStreaming(messages) as AxiosResponse<ChatStreamingCompletionResponse>
 
@@ -43,7 +43,7 @@ async function POST(request: NextApiRequest, response: NextApiResponse) {
                         const parsed = JSON.parse(message) as ChatStreamingChunk
                         console.log(parsed.choices[0].delta)
 
-                        response.write(`data: ${JSON.stringify(parsed.choices[0])}\n\n`)
+                        response.write(`data: ${JSON.stringify(parsed)}\n\n`)
 
                     } catch (error) {
                         console.error('Could not JSON parse stream message', message, error)
@@ -51,13 +51,6 @@ async function POST(request: NextApiRequest, response: NextApiResponse) {
                     }
                 }
             })
-
-            // setCookie(response, chatIdCookieName, chatCompletion.data.id)
-
-            const newMessages = convertResponseToRequestMessage(chatCompletion.data.choices)
-            const storeMessages = [...messages, ...newMessages]
-
-            storeChatData(chatCompletion.data.id, storeMessages)
         } else {
             return response.status(500).json({ message: 'Could not create chat' })
         }

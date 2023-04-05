@@ -62,6 +62,7 @@ async function* fetchSSE<T, R>(url: string, body: T, abort: AbortController, met
 }
 
 export {
+    defaultRequestInit,
     fetchWithBody,
     fetchSSE
 }

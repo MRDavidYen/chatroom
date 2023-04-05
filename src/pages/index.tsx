@@ -1,13 +1,15 @@
-import { ChatCompletionRequestMessage, ChatCompletionResponseMessage } from "openai"
+import { ChatCompletionRequestMessage, ChatCompletionResponseMessage, CreateChatCompletionResponse } from "openai"
 import { useState } from "react"
-import ChatRoom from "src/components/chatroom"
-import { generateRandomId } from "src/libs/text"
-import { deleteChatApi, sendChatMessageApi } from "src/endpoints/chat"
+import ChatRoom from "src/client/components/chatroom"
+import { chatApis } from "src/client/endpoints/chat"
+import useApi from "src/client/hooks/useApi"
+import { generateRandomId } from "src/client/libs/text"
 import { IChatMessageAndToken } from "src/typing/chatgpt"
 
 export default function Home() {
   const [currentChatMessages, setCurrentChatMessages] = useState<IChatMessageAndToken[]>([])
   const [chatInput, setChatInput] = useState<string>("")
+  const { fetchApi, onProgress } = useApi()
 
   const sendMessage = async (message: string) => {
     const newMessages = [...currentChatMessages]
@@ -31,7 +33,9 @@ export default function Home() {
     setChatInput("")
     setCurrentChatMessages(newMessages)
 
-    sendChatMessageApi(requestMessage).then((result) => {
+    fetchApi<ChatCompletionRequestMessage[], CreateChatCompletionResponse>(chatApis.sendChatMessageApi, requestMessage).then((result) => {
+      if (!result) return
+
       const responseMessages = result.choices.reduce((acc, choice) => {
         const replacedMessage = choice.message?.content.replaceAll("\n", "</br>")
         const message: ChatCompletionResponseMessage = {
@@ -70,7 +74,7 @@ export default function Home() {
   }
 
   const clearChat = () => {
-    deleteChatApi().then(() => {
+    fetchApi(chatApis.deleteChatApi).then(() => {
       setCurrentChatMessages([])
     })
   }
@@ -86,7 +90,7 @@ export default function Home() {
       <h1
         className="text-4xl font-bold text-center"
       >ChatGPT</h1>
-      <div className="w-9/12">
+      <div className="container">
         <ChatRoom messages={currentChatMessages} />
         <div
           className="w-full flex justify-between"

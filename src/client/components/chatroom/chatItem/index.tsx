@@ -1,6 +1,6 @@
 import { ChatCompletionResponseMessage, CreateCompletionResponseUsage } from "openai"
 import React from "react"
-import { calculateGptTokenPrice } from "src/libs/calculation"
+import { calculateGptTokenPrice } from "src/client/libs/calculation"
 
 const ChatItem = ({ ...props }: IChatItemProps) => {
     const userMessage = () => {

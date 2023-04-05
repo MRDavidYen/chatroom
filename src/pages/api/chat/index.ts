@@ -1,16 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import { serialize, parse } from "cookie"
 import { chatIdCookieName } from "src/constants/caching"
 import { ChatCompletionRequestMessage } from "openai"
 import {
     convertResponseToRequestMessage,
     createChatCompletion,
     getChatData,
-    storeChatData
+    storeChatDataIntoMemory
 } from "src/server/services/chatgpt"
-import { NextRequest, NextResponse } from "next/server"
 import { deleteCookie, setCookie } from "src/server/persistants/cookies"
-import { apiMiddleware, MultipleMethodHandler } from "src/libs/middleware"
+import { apiMiddleware, MultipleMethodHandler } from "src/server/libs/middleware"
 
 async function PUT(request: NextApiRequest, response: NextApiResponse) {
     let messages: ChatCompletionRequestMessage[] = request.body
@@ -32,7 +30,7 @@ async function PUT(request: NextApiRequest, response: NextApiResponse) {
         const newMessages = convertResponseToRequestMessage(chatCompletion.data.choices)
         const storeMessages = [...messages, ...newMessages]
 
-        storeChatData(chatCompletion.data.id, storeMessages)
+        storeChatDataIntoMemory(chatCompletion.data.id, storeMessages)
 
         return response.status(200).json(chatCompletion.data)
     }
