@@ -1,32 +1,27 @@
-import { ChatCompletionRequestMessage, ChatCompletionResponseMessage, CreateChatCompletionResponse } from "openai";
-import { fetchWithBody } from ".";
+import { ApiEndpointProps } from "src/typing/utilities/api";
 
-const sendChatMessageApi = async (message: ChatCompletionResponseMessage[]): Promise<CreateChatCompletionResponse> => {
-    const resp = await fetchWithBody("/api/chat", message, {
-        method: "PUT"
-    })
-
-    if (resp.status === 200) {
-        return resp.json()
+const chatApis: ChatApis = {
+    sendChatMessageApi: {
+        method: "PUT",
+        path: "/api/chat"
+    },
+    deleteChatApi: {
+        method: "DELETE",
+        path: "/api/chat"
+    },
+    saveChatApi: {
+        method: "POST",
+        path: "/api/chat/save"
     }
+} as const
 
-    throw new Error(await resp.json())
-}
+type ChatApisKeys =
+    "sendChatMessageApi"
+    | "deleteChatApi"
+    | "saveChatApi"
 
-const deleteChatApi = async (): Promise<void> => {
-    await fetch("/api/chat", {
-        method: "DELETE"
-    })
-}
-
-const saveChatApi = async (message: ChatCompletionRequestMessage[]): Promise<void> => {
-    await fetchWithBody("/api/chat/save", message, {
-        method: "POST"
-    })
-}
+type ChatApis = Record<ChatApisKeys, ApiEndpointProps>
 
 export {
-    sendChatMessageApi,
-    deleteChatApi,
-    saveChatApi
+    chatApis
 }
