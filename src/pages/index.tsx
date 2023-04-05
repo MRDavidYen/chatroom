@@ -95,12 +95,12 @@ export default function Home() {
         <div
           className="w-full flex justify-between"
         >
-          <div className="w-40">
+          <div className="w-64">
             <button
               type="button"
               onClick={clearChat}
               className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-            >清空對話</button>
+            >Clear Conversation</button>
           </div>
           <form
             action="POST"
