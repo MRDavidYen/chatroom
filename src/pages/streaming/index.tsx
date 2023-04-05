@@ -1,6 +1,6 @@
 import { ChatCompletionRequestMessage } from "openai"
 import { useEffect, useRef } from "react"
-import { fetchSSE } from "src/endpoints"
+import { fetchSSE } from "src/client/endpoints"
 import { ChatStreamingChunk } from "src/typing/chatgpt"
 
 const StreamingChat = () => {

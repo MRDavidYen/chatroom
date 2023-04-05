@@ -9,8 +9,6 @@ const sendChatMessageApi = async (message: ChatCompletionResponseMessage[]): Pro
     if (resp.status === 200) {
         return resp.json()
     }
-
-    return Promise.reject(resp)
 }
 
 const deleteChatApi = async (): Promise<void> => {

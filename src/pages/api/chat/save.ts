@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { ChatCompletionRequestMessage } from "openai";
-import { chatIdCookieName } from "src/constants/caching";
+import { chatIdCookieName } from "src/constants/caching"
 import { apiMiddleware, MultipleMethodHandler } from "src/server/libs/middleware";
 import { storeChatDataIntoMemory } from "src/server/services/chatgpt";
 

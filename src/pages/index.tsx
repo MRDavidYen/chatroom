@@ -1,8 +1,8 @@
 import { ChatCompletionRequestMessage, ChatCompletionResponseMessage } from "openai"
 import { useState } from "react"
-import ChatRoom from "src/components/chatroom"
-import { generateRandomId } from "src/libs/text"
-import { deleteChatApi, sendChatMessageApi } from "src/endpoints/chat"
+import ChatRoom from "src/client/components/chatroom"
+import { generateRandomId } from "src/client/libs/text"
+import { deleteChatApi, sendChatMessageApi } from "src/client/endpoints/chat"
 import { IChatMessageAndToken } from "src/typing/chatgpt"
 
 export default function Home() {
@@ -51,19 +51,6 @@ export default function Home() {
       }, [] as IChatMessageAndToken[])
 
       const newChatMessages = [...newMessages, ...responseMessages]
-
-      setCurrentChatMessages(newChatMessages)
-    }).catch((error) => {
-      const errorMessage: IChatMessageAndToken = {
-        messageId: generateRandomId(),
-        tokenUsed: undefined,
-        message: {
-          role: "system",
-          content: "系統錯誤，請稍後再試"
-        }
-      }
-
-      const newChatMessages = [...newMessages, errorMessage]
 
       setCurrentChatMessages(newChatMessages)
     })
