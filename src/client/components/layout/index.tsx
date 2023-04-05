@@ -16,7 +16,7 @@ const Layout = ({ ...props }: LayoutProperties) => {
                     </div>
                 </div>
             </header>
-            <main className="h-screen bg-gray-100">
+            <main className="">
                 {props.children}
             </main>
         </>
