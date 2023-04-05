@@ -22,8 +22,15 @@ const createChatCompletionStreaming = async (messages: ChatCompletionRequestMess
     })
 }
 
-const storeChatData = (chatId: string, messages: ChatCompletionRequestMessage[]) => {
-    setCacheToMemory(chatId, messages)
+const storeChatDataIntoMemory = (chatId: string, newMessages: ChatCompletionRequestMessage[]) => {
+    const pastMessages = getChatData(chatId)
+    let messages = newMessages
+
+    if(pastMessages) {
+        messages = [...pastMessages, ...newMessages]
+    }
+
+    setCacheToMemory(chatId, newMessages)
 }
 
 const getChatData = (chatId: string) => {
@@ -42,7 +49,7 @@ const convertResponseToRequestMessage = (respMessages: CreateChatCompletionRespo
 export {
     createChatCompletion,
     createChatCompletionStreaming,
-    storeChatData,
+    storeChatDataIntoMemory,
     getChatData,
     convertResponseToRequestMessage
 }

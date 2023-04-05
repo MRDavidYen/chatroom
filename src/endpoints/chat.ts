@@ -1,4 +1,4 @@
-import { ChatCompletionResponseMessage, CreateChatCompletionResponse } from "openai";
+import { ChatCompletionRequestMessage, ChatCompletionResponseMessage, CreateChatCompletionResponse } from "openai";
 import { fetchWithBody } from ".";
 
 const sendChatMessageApi = async (message: ChatCompletionResponseMessage[]): Promise<CreateChatCompletionResponse> => {
@@ -14,16 +14,19 @@ const sendChatMessageApi = async (message: ChatCompletionResponseMessage[]): Pro
 }
 
 const deleteChatApi = async (): Promise<void> => {
-    const resp = await fetch("/api/chat", {
+    await fetch("/api/chat", {
         method: "DELETE"
     })
+}
 
-    if (resp.status !== 200) {
-        return Promise.reject(resp)
-    }
+const saveChatApi = async (message: ChatCompletionRequestMessage[]): Promise<void> => {
+    await fetchWithBody("/api/chat/save", message, {
+        method: "POST"
+    })
 }
 
 export {
     sendChatMessageApi,
-    deleteChatApi
+    deleteChatApi,
+    saveChatApi
 }

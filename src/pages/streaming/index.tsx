@@ -5,6 +5,7 @@ import { ChatStreamingChunk } from "src/typing/chatgpt"
 
 const StreamingChat = () => {
     const abortControllerRef = useRef<AbortController>(new AbortController())
+    
 
     const startStreaming = async (abort: AbortController) => {
         const requestMessage: ChatCompletionRequestMessage[] = [
@@ -19,6 +20,8 @@ const StreamingChat = () => {
         for await (const message of generator) {
             console.log(message)
         }
+
+        
     }
 
     const onSend = () => {
