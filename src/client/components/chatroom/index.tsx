@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { IChatMessageAndToken } from "src/typing/chatgpt"
-import ChatItemMemo from "../chatItem"
+import ChatItemMemo from "./chatItem"
 import LoadingAnimation from "../loading"
 
 const ChatRoom = ({ ...props }: IChatRoomProps) => {

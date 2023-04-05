@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import { serialize, parse } from "cookie"
 import { chatIdCookieName } from "src/constants/caching"
 import { ChatCompletionRequestMessage } from "openai"
 import {
@@ -8,7 +7,6 @@ import {
     getChatData,
     storeChatDataIntoMemory
 } from "src/server/services/chatgpt"
-import { NextRequest, NextResponse } from "next/server"
 import { deleteCookie, setCookie } from "src/server/persistants/cookies"
 import { apiMiddleware, MultipleMethodHandler } from "src/server/libs/middleware"
 

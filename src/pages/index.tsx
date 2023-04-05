@@ -90,7 +90,7 @@ export default function Home() {
       <h1
         className="text-4xl font-bold text-center"
       >ChatGPT</h1>
-      <div className="w-9/12">
+      <div className="container">
         <ChatRoom messages={currentChatMessages} />
         <div
           className="w-full flex justify-between"

@@ -27,7 +27,9 @@ const ErrorBadge = ({ ...props }: ErrorBadgeProps) => {
     }, [props.message])
 
     useEffect(() => {
-        receivedError(errorBoundaryContext.error.message)
+        if (errorBoundaryContext.error.message) {
+            receivedError(errorBoundaryContext.error.message)
+        }
     }, [errorBoundaryContext.error])
 
     return (
