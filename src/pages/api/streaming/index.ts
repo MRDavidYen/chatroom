@@ -43,7 +43,7 @@ async function POST(request: NextApiRequest, response: NextApiResponse) {
                         const parsed = JSON.parse(message) as ChatStreamingChunk
                         console.log(parsed.choices[0].delta)
 
-                        response.write(`data: ${JSON.stringify(parsed)}\n\n`)
+                        response.write(`data: ${message}\n\n`)
 
                     } catch (error) {
                         console.error('Could not JSON parse stream message', message, error)

@@ -47,7 +47,7 @@ const ChatRoom = ({ ...props }: IChatRoomProps) => {
                     <div
                         className="text-center text-2xl font-bold"
                     >
-                        <h2>輸入文字並送出開啟對話</h2>
+                        <h2>Submit message to start conversation.</h2>
                     </div>
             }
             <LoadingAnimation
