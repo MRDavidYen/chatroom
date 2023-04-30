@@ -3,10 +3,10 @@ import { chatIdCookieName } from "src/constants/caching"
 import { createChatCompletionStreaming, getChatData, storeChatDataIntoMemory } from "src/server/services/chatgpt"
 import { AxiosResponse } from "axios"
 import { ChatStreamingChunk, ChatStreamingCompletionResponse } from "src/typing/chatgpt"
-import { NextApiRequest, NextApiResponse } from "next"
-import { apiMiddleware, MultipleMethodHandler } from "src/server/libs/middleware"
+import { NextApiRequest } from "next"
+import { apiMiddleware, CustomNextApiResponse, MultipleMethodHandler } from "src/server/libs/middleware"
 
-async function POST(request: NextApiRequest, response: NextApiResponse) {
+async function POST(request: NextApiRequest, response: CustomNextApiResponse) {
     try {
         let messages: ChatCompletionRequestMessage[] = await request.body
         const chatId = request.cookies[chatIdCookieName] || ''
@@ -44,7 +44,7 @@ async function POST(request: NextApiRequest, response: NextApiResponse) {
                         console.log(parsed.choices[0].delta)
 
                         response.write(`data: ${message}\n\n`)
-
+                        response.flush()
                     } catch (error) {
                         console.error('Could not JSON parse stream message', message, error)
                         response.end()
