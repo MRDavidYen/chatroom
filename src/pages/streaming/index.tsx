@@ -21,7 +21,7 @@ const StreamingChat = () => {
             }
         ]
 
-        const fetchCompletion = fetchEventSource('/api/streaming', {
+        const fetchCompletion = fetchEventSource('/api/completion', {
             method: 'POST',
             body: JSON.stringify(requestMessage),
             headers: {
