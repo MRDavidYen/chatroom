@@ -6,10 +6,6 @@ import { ChatStreamingChunk, ChatStreamingCompletionResponse } from "src/typing/
 import { NextApiRequest } from "next"
 import { apiMiddleware, CustomNextApiResponse, MultipleMethodHandler } from "src/server/libs/middleware"
 
-export const config = {
-    runtime: "edge",
-}
-
 async function POST(request: NextApiRequest, response: CustomNextApiResponse) {
     try {
         let messages: ChatCompletionRequestMessage[] = await request.body
