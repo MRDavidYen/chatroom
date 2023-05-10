@@ -1,10 +1,6 @@
-import { ChatCompletionRequestMessage, ChatCompletionResponseMessage, CreateChatCompletionResponse } from "openai"
 import { useState } from "react"
 import ChatRoom, { ChatMessage } from "src/client/components/chatroom"
-import { chatApis } from "src/client/endpoints/chat"
-import useApi from "src/client/hooks/useApi"
 import { generateRandomId } from "src/client/libs/text"
-import { IChatMessageAndToken } from "src/typing/chatgpt"
 
 export default function Home() {
   const [chatInput, setChatInput] = useState<string>("")
