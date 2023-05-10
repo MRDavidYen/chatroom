@@ -1,0 +1,17 @@
+$theme-bg-color: #4d4d4d;
+
+.markdown {
+    padding: 1rem;
+
+    > div {
+        width: 100%;
+    }
+    pre {
+        width: 60%;
+        margin: 0.5rem auto;
+        padding: 1rem;
+        border: 1px solid $theme-bg-color;
+        border-radius: 5px;
+        overflow-x: auto;
+    }
+}

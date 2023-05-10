@@ -27,6 +27,12 @@ async function* fetchSSE<T, R>(url: string, body: T, abort: AbortController, met
         throw new Error('Could not get reader from response body')
     }
 
+    const stream = new ReadableStream({
+        start(controller) {
+
+        }
+    })
+
     let decoder = new TextDecoder("utf-8")
     let buffer = ''
 
@@ -38,7 +44,7 @@ async function* fetchSSE<T, R>(url: string, body: T, abort: AbortController, met
         }
 
         if (value) {
-            buffer += decoder.decode(value)
+            buffer += decoder.decode(value, { stream: true })
 
             const lines = buffer.split('\n').filter(line => line.trim() !== '')
 
@@ -49,6 +55,7 @@ async function* fetchSSE<T, R>(url: string, body: T, abort: AbortController, met
                 }
                 try {
                     const parsed = JSON.parse(message) as R
+
                     yield parsed
                 } catch (error) {
                     console.error('Could not JSON parse stream message', message, error)

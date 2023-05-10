@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from "react"
-import { IChatMessageAndToken } from "src/typing/chatgpt"
+import { ChatStreamingChunk, IChatMessageAndToken } from "src/typing/chatgpt"
 import ChatItemMemo from "./chatItem"
 import LoadingAnimation from "../loading"
+import { ChatCompletionRequestMessage, ChatCompletionResponseMessage } from "openai"
+import { generateRandomId } from "src/client/libs/text"
+import { fetchEventSource } from "@microsoft/fetch-event-source"
 
 const ChatRoom = ({ ...props }: IChatRoomProps) => {
+    const abortControllerRef = useRef<AbortController>(new AbortController())
+
     const containerRef = useRef<HTMLDivElement>(null)
     const [loading, setLoading] = useState<boolean>(false)
+    const [messages, setMessages] = useState<ChatMessage[]>([])
 
     const scrollToBottom = () => {
         if (containerRef.current) {
@@ -13,41 +19,41 @@ const ChatRoom = ({ ...props }: IChatRoomProps) => {
         }
     }
 
+    const onStreamingEnded = (message: string) => {
+        setLoading(false)
+    }
+
     useEffect(() => {
         scrollToBottom()
 
-        if (props.messages && props.messages.length > 0) {
-            const lastMessage = props.messages[props.messages.length - 1]
-
-            if (lastMessage.message && lastMessage.message.role === "user") {
-                setLoading(true)
-            } else {
-                setLoading(false)
-            }
+        if (props.inputMessage) {
+            setLoading(true)
+            setMessages([...messages, props.inputMessage])
         }
-    }, [props.messages])
+    }, [props.inputMessage])
 
     return (
         <div
             ref={containerRef}
-            className="p-10 my-4 border border-gray-600 rounded-md max-h-[80vh] overflow-y-auto"
+            className="p-10 my-4 border border-gray-600 bg-gray-700 rounded-md max-h-[80vh] overflow-y-auto"
         >
             {
-                props.messages && props.messages.length > 0 ?
-                    props.messages.map((item, index) => {
+                messages && messages.length > 0 ?
+                    messages.map((item, index) => {
                         return (
                             <ChatItemMemo
-                                message={item.message}
-                                token={item.tokenUsed}
-                                key={item.messageId}
+                                message={item}
+                                key={item.id}
+                                abort={abortControllerRef.current}
+                                onStreamingEnded={onStreamingEnded}
                             />
                         )
                     })
                     :
                     <div
-                        className="text-center text-2xl font-bold"
+                        className="text-center text-2xl text-white font-bold"
                     >
-                        <h2>輸入文字並送出開啟對話</h2>
+                        <h2>Submit message to start conversation.</h2>
                     </div>
             }
             <LoadingAnimation
@@ -57,8 +63,13 @@ const ChatRoom = ({ ...props }: IChatRoomProps) => {
     )
 }
 
+export type ChatMessage = {
+    id: string
+    message: string
+}
+
 export interface IChatRoomProps {
-    messages: IChatMessageAndToken[]
+    inputMessage?: ChatMessage
 }
 
 export default ChatRoom
