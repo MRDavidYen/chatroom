@@ -1,15 +1,19 @@
 import { NextApiRequest, NextApiResponse } from "next"
 
-type NextApiHandler = (req: NextApiRequest, res: CustomNextApiResponse) => Promise<void | NextApiResponse>
+type NextApiHandler = (req: CustomNextApiRequest, res: CustomNextApiResponse) => Promise<void | NextApiResponse>
 
 type CustomNextApiResponse = NextApiResponse & {
     flush: () => void
 }
 
+type CustomNextApiRequest = NextApiRequest & {
+    file: any
+}
+
 type MultipleMethodHandler = { [key: string]: NextApiHandler }
 
 const apiMiddleware = (handler: MultipleMethodHandler) => {
-    return async (req: NextApiRequest, res: CustomNextApiResponse) => {
+    return async (req: CustomNextApiRequest, res: CustomNextApiResponse) => {
         const method = handler[req.method!]
 
         if (method) {
@@ -27,5 +31,6 @@ export {
 export type {
     NextApiHandler,
     CustomNextApiResponse,
+    CustomNextApiRequest,
     MultipleMethodHandler
 }

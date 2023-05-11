@@ -1,54 +1,114 @@
-import { ChatCompletionResponseMessage, CreateCompletionResponseUsage } from "openai"
-import React from "react"
-import { calculateGptTokenPrice } from "src/client/libs/calculation"
+import { fetchEventSource } from "@microsoft/fetch-event-source"
+import MarkdownIt from "markdown-it"
+import { ChatCompletionRequestMessage } from "openai"
+import React, { useEffect, useRef, useState } from "react"
+import { ChatStreamingChunk } from "src/typing/chatgpt"
+import { ChatMessage } from ".."
+import styles from "src/styles/markdown.module.scss"
+import hljs from "highlight.js"
 
 const ChatItem = ({ ...props }: IChatItemProps) => {
+    const messageRef = useRef<string>("")
+
+    const [responseMessage, setResponseMessage] = useState<string>("")
+    const [streamingEnded, setStreamingEnded] = useState<boolean>(false)
+
+    const onMessageSended = (input: string) => {
+        const md = new MarkdownIt({
+            highlight: (str, lang) => {
+                try {
+                    if (lang && hljs.getLanguage(lang)) {
+                        const preCode = hljs.highlight(lang, str, true).value
+
+                        return `<pre class="hljs"><code>${preCode}</code></pre>`
+                    }
+                } catch { }
+
+                return str
+            }
+        })
+
+        const requestMessage: ChatCompletionRequestMessage[] = [
+            {
+                role: "user",
+                content: input
+            }
+        ]
+
+        fetchEventSource('/api/completion', {
+            method: 'POST',
+            body: JSON.stringify(requestMessage),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            signal: props.abort.signal,
+            onmessage: (event) => {
+                const result = JSON.parse(event.data) as ChatStreamingChunk
+
+                for (const choice of result.choices) {
+                    if (choice.delta.content) {
+                        messageRef.current = messageRef.current + choice.delta.content
+
+                        setResponseMessage(md.render(messageRef.current))
+                    }
+                }
+            },
+            onclose: () => {
+                setStreamingEnded(true)
+                props.onStreamingEnded!(responseMessage)
+            }
+        })
+    }
+
     const userMessage = () => {
         return (
             <div className="chat-item flex justify-end my-4">
                 <p
-                    className="w-9/12 border border-green-100 bg-green-100 text-gray-800 rounded-lg p-2"
-                >{props.message?.content}</p>
+                    className="w-9/12 border border-blue-900 bg-blue-900 text-white rounded-lg p-2"
+                    data-id={props.message.id}
+                >{props.message.message}</p>
             </div>
         )
     }
 
     const systemMessage = () => {
         return (
-            props.message?.role === "system" ?
-                <div className="chat-item flex justify-start my-4">
-                    <div className="w-9/12 border border-red-100 bg-red-100 text-gray-800 rounded-lg p-2">
-                        <p>{props.message?.content}</p>
-                    </div>
-                </div>
-                : <div className="chat-item flex justify-start my-4">
-                    <div className="w-9/12 border border-blue-100 bg-blue-100 text-gray-800 rounded-lg p-2">
-                        <p dangerouslySetInnerHTML={{ __html: (props.message?.content || "") }}></p>
-                        <div className="border-t border-gray-600 pt-4 mt-4">
-                            <p>提示使用Token量：{props.token?.prompt_tokens}</p>
-                            <p>回應使用Token量：{props.token?.completion_tokens}</p>
-                            <p>總共使用Token量：{props.token?.total_tokens}</p>
+            <div>
+                {
+                    responseMessage.length > 0 ?
+                        <div
+                            className={`${styles.markdown}
+                         w-9/12 chat-item flex justify-start my-4 border-emerald-800 bg-emerald-800 text-white rounded-lg p-2`}>
+                            <div dangerouslySetInnerHTML={{ __html: responseMessage }}></div>
                         </div>
-                        <div>
-                            <p>估算價格（使用GPT4）：${calculateGptTokenPrice(props.token?.total_tokens)}</p>
-                        </div>
-                    </div>
-                </div>
+                        : <></>
+                }
+            </div>
         )
     }
 
+    useEffect(() => {
+        if (props.message && !streamingEnded) {
+            onMessageSended(props.message.message)
+        }
+    }, [props.message])
+
     return (
-        props.message ?
-            props.message.role === "user" ?
+        <div>
+            {
                 userMessage()
-                : systemMessage()
-            : <></>
+            }
+            {
+                systemMessage()
+            }
+        </div>
     )
 }
 
 export interface IChatItemProps {
-    message?: ChatCompletionResponseMessage
-    token?: CreateCompletionResponseUsage
+    abort: AbortController
+    message: ChatMessage
+    onStreamingEnded?: (message: string) => void
 }
 
 const ChatItemMemo = React.memo(ChatItem)
