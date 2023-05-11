@@ -1,5 +1,8 @@
+import axios from "axios"
+import { CreateTranscriptionResponse } from "openai"
 import { useState } from "react"
 import ChatRoom, { ChatMessage } from "src/client/components/chatroom"
+import RecordArea from "src/client/components/record"
 import { generateRandomId } from "src/client/libs/text"
 
 export default function Home() {
@@ -17,6 +20,24 @@ export default function Home() {
       })
 
       setChatInput("")
+    }
+  }
+
+  const onRecordEnded = async (mediaBlob: Blob) => {
+    const formData = new FormData()
+    formData.append("file", mediaBlob, "audio.webm")
+
+    const response = await axios.post<CreateTranscriptionResponse>("/api/whisper", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
+
+    if (response.status == 200 && response.data) {
+      setSubmitMessage({
+        id: generateRandomId(),
+        message: response.data.text,
+      })
     }
   }
 
@@ -49,6 +70,9 @@ export default function Home() {
               type="text"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
+            />
+            <RecordArea
+              onRecordEnded={onRecordEnded}
             />
             <button
               className="bg-green-800 hover:bg-green-700 text-white font-bold ml-2 py-2 px-4 rounded"
