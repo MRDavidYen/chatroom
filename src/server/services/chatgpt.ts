@@ -1,4 +1,7 @@
-import { ChatCompletionRequestMessage, CreateChatCompletionResponseChoicesInner } from "openai";
+import axios from "axios";
+import FormData from "form-data";
+import { ChatCompletionRequestMessage, CreateChatCompletionResponseChoicesInner, CreateTranscriptionResponse } from "openai";
+import { openaiHost, openaiKey } from "src/constants/chatgpt";
 import { openaiService } from "src/server/utilities/chatgpt";
 import { getCacheFromMemory, setCacheToMemory } from "../persistants/cache";
 
@@ -22,11 +25,22 @@ const createChatCompletionStreaming = async (messages: ChatCompletionRequestMess
     })
 }
 
+const createWhisperTranscription = async (formData: FormData) => {
+    formData.append('model', 'whisper-1')
+
+    return await axios.post<CreateTranscriptionResponse>(openaiHost + "audio/transcriptions", formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${openaiKey}`
+        }
+    })
+}
+
 const storeChatDataIntoMemory = (chatId: string, newMessages: ChatCompletionRequestMessage[]) => {
     const pastMessages = getChatData(chatId)
     let messages = newMessages
 
-    if(pastMessages) {
+    if (pastMessages) {
         messages = [...pastMessages, ...newMessages]
     }
 
@@ -49,6 +63,7 @@ const convertResponseToRequestMessage = (respMessages: CreateChatCompletionRespo
 export {
     createChatCompletion,
     createChatCompletionStreaming,
+    createWhisperTranscription,
     storeChatDataIntoMemory,
     getChatData,
     convertResponseToRequestMessage
