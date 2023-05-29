@@ -27,6 +27,7 @@ const deleteCookie = (response: NextApiResponse, name: string) => {
   response.setHeader(
     'Set-Cookie',
     serialize(name, '', {
+      ...cookiesSettingsDefault,
       maxAge: -1,
     })
   )

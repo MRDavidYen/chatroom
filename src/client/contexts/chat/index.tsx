@@ -1,7 +1,8 @@
 import { createContext, useState } from 'react'
 import { ChatMessage } from 'src/client/components/chatroom'
+import { deleteCompletionApi } from 'src/client/endpoints/completion'
 
-const chatReducer = (): ChatContext => {
+const chatReducer = (): ChatContextType => {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [chatId, setChatId] = useState<string>('')
 
@@ -11,20 +12,24 @@ const chatReducer = (): ChatContext => {
 
   const clearChat = () => {
     setMessages([])
+
+    deleteCompletionApi()
   }
 
   return {
     messages,
     chatId,
     update,
+    updateChatId: setChatId,
     clearChat,
   }
 }
 
-const ChatContext = createContext<ChatContext>({
+const ChatContext = createContext<ChatContextType>({
   messages: [],
   chatId: '',
   update: () => {},
+  updateChatId: () => {},
   clearChat: () => {},
 })
 
@@ -40,11 +45,12 @@ export type ChatContextProperties = {
   children: JSX.Element | JSX.Element[]
 }
 
-export type ChatContext = {
+export type ChatContextType = {
   messages: ChatMessage[]
   chatId: string
   update: (message: ChatMessage) => void
+  updateChatId: (chatId: string) => void
   clearChat: () => void
 }
 
-export { ChatProvider }
+export { ChatProvider, ChatContext }

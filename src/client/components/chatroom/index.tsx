@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import ChatItemMemo from './chatItem'
 import LoadingAnimation from '../loading'
+import { ChatContext } from 'src/client/contexts/chat'
+import { generateRandomId } from 'src/client/libs/text'
 
 const ChatRoom = ({ ...props }: IChatRoomProps) => {
+  const chatContext = useContext(ChatContext)
+
   const abortControllerRef = useRef<AbortController>(new AbortController())
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -16,6 +20,11 @@ const ChatRoom = ({ ...props }: IChatRoomProps) => {
   }
 
   const onStreamingEnded = (message: string) => {
+    chatContext.update({
+      id: generateRandomId(),
+      message: message,
+      role: 'assistant',
+    })
     setLoading(false)
   }
 
@@ -57,6 +66,7 @@ const ChatRoom = ({ ...props }: IChatRoomProps) => {
 export type ChatMessage = {
   id: string
   message: string
+  role?: 'user' | 'assistant' | 'system'
 }
 
 export interface IChatRoomProps {

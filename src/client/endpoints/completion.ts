@@ -5,4 +5,8 @@ const saveCompletionApi = async (data: ChatCompletionRequestMessage[]) => {
   return fetchWithBody('/api/completion/save', data)
 }
 
-export { saveCompletionApi }
+const deleteCompletionApi = async () => {
+  return fetch('/api/completion', { method: 'DELETE' })
+}
+
+export { saveCompletionApi, deleteCompletionApi }
