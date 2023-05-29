@@ -1,24 +1,31 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { ChatCompletionRequestMessage } from "openai";
-import { chatIdCookieName } from "src/constants/caching"
-import { apiMiddleware, MultipleMethodHandler } from "src/server/libs/middleware";
-import { storeChatDataIntoMemory } from "src/server/services/chatgpt";
+import { NextApiRequest, NextApiResponse } from 'next'
+import { ChatCompletionRequestMessage } from 'openai'
+import { chatIdCookieName } from 'src/constants/caching'
+import {
+  apiMiddleware,
+  MultipleMethodHandler,
+} from 'src/server/libs/middleware'
+import { setCookie } from 'src/server/persistants/cookies'
+import { storeChatDataIntoMemory } from 'src/server/services/chatgpt'
+import { v4 as uuidv4 } from 'uuid'
 
 async function POST(request: NextApiRequest, response: NextApiResponse) {
-    const message: ChatCompletionRequestMessage[] = request.body
-    const chatId = request.cookies[chatIdCookieName] || ''
+  const message: ChatCompletionRequestMessage[] = request.body
+  let chatId = request.cookies[chatIdCookieName] || ''
 
-    if (chatId) {
-        storeChatDataIntoMemory(chatId, message)
+  if (!chatId) {
+    chatId = uuidv4()
 
-        return response.status(200).json({ message: 'chat stored' })
-    }
+    setCookie(response, chatIdCookieName, chatId)
+  }
 
-    return response.status(500).json({ message: 'chatid not found' })
+  storeChatDataIntoMemory(chatId, message)
+
+  return response.status(200).json({ message: 'chat stored' })
 }
 
 const handler: MultipleMethodHandler = {
-    "POST": POST
+  POST: POST,
 }
 
 export default apiMiddleware(handler)
