@@ -2,7 +2,7 @@ import { createContext, useState } from 'react'
 import { ChatMessage } from 'src/client/components/chatroom'
 import { deleteCompletionApi } from 'src/client/endpoints/completion'
 
-const chatReducer = (): ChatContextType => {
+const ChatReducer = (): ChatContextType => {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [chatId, setChatId] = useState<string>('')
 
@@ -34,7 +34,7 @@ const ChatContext = createContext<ChatContextType>({
 })
 
 const ChatProvider = ({ ...props }: ChatContextProperties) => {
-  const chat = chatReducer()
+  const chat = ChatReducer()
 
   return (
     <ChatContext.Provider value={chat}>{props.children}</ChatContext.Provider>

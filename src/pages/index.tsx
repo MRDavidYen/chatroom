@@ -3,6 +3,7 @@ import { CreateTranscriptionResponse } from 'openai'
 import { useContext, useState } from 'react'
 import ChatRoom, { ChatMessage } from 'src/client/components/chatroom'
 import RecordArea from 'src/client/components/record'
+import SideMenu from 'src/client/components/sideMenu'
 import { ChatContext } from 'src/client/contexts/chat'
 import { generateRandomId } from 'src/client/libs/text'
 
@@ -54,7 +55,8 @@ export default function Home() {
   }
 
   return (
-    <div className='px-4 flex flex-col bg-gray-800 items-center'>
+    <div className='px-4 flex flex-col bg-gray-800 items-center h-full relative'>
+      <SideMenu />
       <h1 className='text-4xl font-bold text-center text-white'>ChatGPT</h1>
       <div className='container'>
         <ChatRoom inputMessage={submitMessage} />

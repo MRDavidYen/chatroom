@@ -2,7 +2,7 @@ import Link from "next/link"
 
 const Layout = ({ ...props }: LayoutProperties) => {
     return (
-        <div className="bg-gray-800 h-screen">
+        <div className="bg-gray-800 h-screen w-screen flex flex-col">
             <header className="h-14 bg-black text-white flex justify-center items-center">
                 <div className="container flex items-center">
                     <Link href="/">
@@ -10,7 +10,7 @@ const Layout = ({ ...props }: LayoutProperties) => {
                     </Link>
                 </div>
             </header>
-            <main className="">
+            <main className="h-full">
                 {props.children}
             </main>
         </div>

@@ -42,22 +42,24 @@ const ChatRoom = ({ ...props }: IChatRoomProps) => {
       ref={containerRef}
       className='p-10 my-4 border border-gray-600 bg-gray-700 rounded-md max-h-[80vh] overflow-y-auto'
     >
-      {messages && messages.length > 0 ? (
-        messages.map((item, index) => {
-          return (
-            <ChatItemMemo
-              message={item}
-              key={item.id}
-              abort={abortControllerRef.current}
-              onStreamingEnded={onStreamingEnded}
-            />
-          )
-        })
-      ) : (
-        <div className='text-center text-2xl text-white font-bold'>
-          <h2>Submit message to start conversation.</h2>
-        </div>
-      )}
+      <div>
+        {messages && messages.length > 0 ? (
+          messages.map((item, index) => {
+            return (
+              <ChatItemMemo
+                message={item}
+                key={item.id}
+                abort={abortControllerRef.current}
+                onStreamingEnded={onStreamingEnded}
+              />
+            )
+          })
+        ) : (
+          <div className='text-center text-2xl text-white font-bold'>
+            <h2>Submit message to start conversation.</h2>
+          </div>
+        )}
+      </div>
       <LoadingAnimation isShow={loading} />
     </div>
   )
