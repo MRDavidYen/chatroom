@@ -4,7 +4,7 @@ import {
   createChatCompletionStreaming,
   getChatData,
   storeChatDataIntoMemory,
-} from 'src/server/services/chatgpt'
+} from 'src/server/services/chatgpt/chat'
 import { AxiosResponse } from 'axios'
 import {
   ChatStreamingChunk,

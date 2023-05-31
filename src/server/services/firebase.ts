@@ -1,14 +1,16 @@
-import admin from 'firebase-admin/app'
+import firebase from 'firebase-admin'
 
-const firebaseConfig = {
-  credential: admin.cert({
-    projectId: process.env.FIREBASE_ADMIN_PROJECTID,
-    clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  }),
-  databaseURL: process.env.FIREBASE_DATABASE_URL,
+const serviceAccount = require('../../../firebase.json')
+
+let app: firebase.app.App
+
+if (firebase.apps.length === 0) {
+  app = firebase.initializeApp({
+    credential: firebase.credential.cert(serviceAccount),
+    databaseURL: process.env.FIREBASE_DATABASE_URL,
+  })
+} else {
+  app = firebase.app()
 }
 
-const firebaseAdminApp = admin.initializeApp(firebaseConfig)
-
-export { firebaseAdminApp }
+export const firebaseAdminApp = app

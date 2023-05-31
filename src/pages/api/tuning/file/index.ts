@@ -1,14 +1,30 @@
-import { NextRequest } from "next/server";
-import { ChatCompletionResponseMessage } from "openai";
+import { NextApiRequest, NextApiResponse } from 'next'
+import {
+  apiMiddleware,
+  MultipleMethodHandler,
+} from 'src/server/libs/middleware'
+import { createFineTuningFile } from 'src/server/services/chatgpt/tuning'
+import { FineTuningPair } from 'src/typing/chatgpt'
 
-export async function POST(req: NextRequest) {
-    try {
-        const body: ChatCompletionResponseMessage[] = await req.json();
+async function POST(req: NextApiRequest, response: NextApiResponse) {
+  const pairs: FineTuningPair[] = [
+    {
+      prompt: 'This is a test',
+      completion: 'This is a test completion',
+    },
+    {
+      prompt: 'This is a test 2',
+      completion: 'This is a test completion 2',
+    },
+  ]
 
-        
-    } catch (e) {
-        return new Response(JSON.stringify({ message: "Bad Request", ex: e }), {
-            status: 400
-        })
-    }
+  await createFineTuningFile(pairs)
+
+  return response.status(200).json({})
 }
+
+const handler: MultipleMethodHandler = {
+  POST,
+}
+
+export default apiMiddleware(handler)

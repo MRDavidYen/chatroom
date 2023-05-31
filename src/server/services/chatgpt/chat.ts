@@ -3,7 +3,7 @@ import FormData from "form-data";
 import { ChatCompletionRequestMessage, CreateChatCompletionResponseChoicesInner, CreateTranscriptionResponse } from "openai";
 import { openaiHost, openaiKey } from "src/constants/chatgpt";
 import { openaiService } from "src/server/utilities/chatgpt";
-import { getCacheFromMemory, setCacheToMemory } from "../persistants/cache";
+import { getCacheFromMemory, setCacheToMemory } from "../../persistants/cache";
 
 const createChatCompletion = async (messages: ChatCompletionRequestMessage[]) => {
     return await openaiService.createChatCompletion({

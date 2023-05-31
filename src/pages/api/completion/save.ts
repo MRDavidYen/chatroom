@@ -6,7 +6,7 @@ import {
   MultipleMethodHandler,
 } from 'src/server/libs/middleware'
 import { setCookie } from 'src/server/persistants/cookies'
-import { storeChatDataIntoMemory } from 'src/server/services/chatgpt'
+import { storeChatDataIntoMemory } from 'src/server/services/chatgpt/chat'
 import { v4 as uuidv4 } from 'uuid'
 
 async function POST(request: NextApiRequest, response: NextApiResponse) {

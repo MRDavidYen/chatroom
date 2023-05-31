@@ -1,7 +1,7 @@
 import { NextApiResponse } from "next"
 import { apiMiddleware, CustomNextApiRequest, MultipleMethodHandler } from "src/server/libs/middleware"
 import multer from 'multer'
-import { createWhisperTranscription } from "src/server/services/chatgpt"
+import { createWhisperTranscription } from "src/server/services/chatgpt/chat"
 import { Blob } from "buffer"
 import FormData from "form-data"
 

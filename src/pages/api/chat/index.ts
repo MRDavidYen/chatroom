@@ -6,7 +6,7 @@ import {
   createChatCompletion,
   getChatData,
   storeChatDataIntoMemory,
-} from 'src/server/services/chatgpt'
+} from 'src/server/services/chatgpt/chat'
 import { deleteCookie, setCookie } from 'src/server/persistants/cookies'
 import {
   apiMiddleware,
