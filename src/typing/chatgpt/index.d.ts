@@ -20,6 +20,15 @@ type ChatStreamingCompletionResponse = {
   on: (event: string, callback: (data: string) => void) => void
 }
 
+type CreateFileResponse = {
+  id: string
+  object: string
+  bytes: number
+  created_at: number
+  filename: string
+  purpose: string
+}
+
 type ChatStreamingChunkDelta = {
   delta: {
     content?: string
@@ -45,6 +54,7 @@ type FineTuningPair = {
 export {
   IChatMessageAndToken,
   ChatStreamingCompletionResponse,
+  CreateFileResponse,
   ChatStreamingChunkDelta,
   ChatStreamingChunk,
   FineTuningPair,

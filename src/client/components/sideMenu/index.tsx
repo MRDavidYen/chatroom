@@ -13,7 +13,7 @@ const SideMenu = () => {
       ></div>
       <div
         className={`side-menu bg-gray-600 absolute left-0 top-0 w-80 h-full shadow-[3px_0px_5px_-5px] shadow-gray-400
-    transition-all duration-500 ease-in-out transform translate-x-0 
+    transition-all duration-500 ease-in-out transform 
     ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div

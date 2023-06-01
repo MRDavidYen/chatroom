@@ -62,13 +62,13 @@ export default function Home() {
         <ChatRoom inputMessage={submitMessage} />
         <div className='w-full flex justify-between'>
           <div className='w-64'>
-            <button
+            {/* <button
               type='button'
               onClick={chatContext.clearChat}
               className='bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded'
             >
               Clear Conversation
-            </button>
+            </button> */}
           </div>
           <form
             action='POST'
