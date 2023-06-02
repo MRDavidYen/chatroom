@@ -1,9 +1,6 @@
+import { FineTune } from 'openai'
 import { ChatMessage } from 'src/client/components/chatroom'
 
-type ChatModelDocument = {
-  id: string
-  createDate: FirebaseFirestore.Timestamp
-  tuningBy: ChatMessage[]
-}
+type ChatModelDocument = FineTune
 
 export { ChatModelDocument }

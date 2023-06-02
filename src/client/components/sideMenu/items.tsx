@@ -2,6 +2,7 @@ import { useContext } from 'react'
 import { ChatContext } from 'src/client/contexts/chat'
 import ExportIcon from '../icons/export'
 import SideFiles from './files'
+import SideModels from './models'
 import FineTuning from './tuning'
 
 const SideMenuItems = () => {
@@ -16,6 +17,7 @@ const SideMenuItems = () => {
         <FineTuning />
         <div className='border border-gray-400 my-2'></div>
         <SideFiles />
+        <SideModels />
       </div>
     </div>
   )

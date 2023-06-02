@@ -7,7 +7,6 @@ import {
   TuningFileDocument,
 } from 'src/server/persistants/firestore/models'
 import { ChatMessage } from 'src/client/components/chatroom'
-import { CreateFineTuneRequest } from 'openai'
 
 const convertEveryTwoChatMessageToFineTuningPair = (message: ChatMessage[]) => {
   const pairs: FineTuningPair[] = []
@@ -27,8 +26,12 @@ const convertEveryTwoChatMessageToFineTuningPair = (message: ChatMessage[]) => {
 const createFineTuning = async (tuningFile: TuningFileDocument) => {
   return await openaiService.createFineTune({
     training_file: tuningFile.id,
-    model: 'text-davinci-003',
+    model: 'davinci',
   })
+}
+
+const getFineTunedModelList = async () => {
+  return await openaiService.listFineTunes()
 }
 
 const createFineTuningFile = async (
@@ -74,5 +77,6 @@ const createFineTuningFile = async (
 export {
   createFineTuningFile,
   createFineTuning,
+  getFineTunedModelList,
   convertEveryTwoChatMessageToFineTuningPair,
 }

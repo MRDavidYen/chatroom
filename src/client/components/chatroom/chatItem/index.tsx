@@ -1,15 +1,21 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 import MarkdownIt from 'markdown-it'
 import { ChatCompletionRequestMessage } from 'openai'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { ChatStreamingChunk } from 'src/typing/chatgpt'
 import { ChatMessage } from '..'
 import styles from 'src/styles/markdown.module.scss'
 import hljs from 'highlight.js'
 import { saveCompletionApi } from 'src/client/endpoints/completion'
+import { ModelsContext } from 'src/client/contexts/models'
+import {
+  ChatWithModelStreamingChunk,
+  CreateCompletionWithModelPayload,
+} from 'src/pages/api/completion/model'
 
 const ChatItem = ({ ...props }: IChatItemProps) => {
   const messageRef = useRef<string>('')
+  const modelsContext = useContext(ModelsContext)
 
   const [responseMessage, setResponseMessage] = useState<string>('')
   const [streamingEnded, setStreamingEnded] = useState<boolean>(false)
@@ -36,36 +42,74 @@ const ChatItem = ({ ...props }: IChatItemProps) => {
       },
     ]
 
-    fetchEventSource('/api/completion', {
-      method: 'POST',
-      body: JSON.stringify(requestMessage),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      signal: props.abort.signal,
-      onmessage: (event) => {
-        const result = JSON.parse(event.data) as ChatStreamingChunk
+    if (!modelsContext.selectedModel) {
+      fetchEventSource('/api/completion', {
+        method: 'POST',
+        body: JSON.stringify(requestMessage),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: props.abort.signal,
+        onmessage: (event) => {
+          const result = JSON.parse(event.data) as ChatStreamingChunk
 
-        for (const choice of result.choices) {
-          if (choice.delta.content) {
-            messageRef.current = messageRef.current + choice.delta.content
+          for (const choice of result.choices) {
+            if (choice.delta.content) {
+              messageRef.current = messageRef.current + choice.delta.content
 
-            setResponseMessage(md.render(messageRef.current))
+              setResponseMessage(md.render(messageRef.current))
+            }
           }
-        }
-      },
-      onclose: () => {
-        setStreamingEnded(true)
-        saveCompletionApi([
-          ...requestMessage,
-          {
-            role: 'assistant',
-            content: messageRef.current,
-          },
-        ])
-        props.onStreamingEnded!(messageRef.current)
-      },
-    })
+        },
+        onclose: () => {
+          setStreamingEnded(true)
+          saveCompletionApi([
+            ...requestMessage,
+            {
+              role: 'assistant',
+              content: messageRef.current,
+            },
+          ])
+          props.onStreamingEnded!(messageRef.current)
+        },
+      })
+    } else {
+      const payload: CreateCompletionWithModelPayload = {
+        prompt: input,
+        model: modelsContext.selectedModel?.fine_tuned_model,
+      }
+
+      fetchEventSource('/api/completion/model', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: props.abort.signal,
+        onmessage: (event) => {
+          const result = JSON.parse(event.data) as ChatWithModelStreamingChunk
+
+          for (const choice of result.choices) {
+            if (choice.text) {
+              messageRef.current = messageRef.current + choice.text
+
+              setResponseMessage(md.render(messageRef.current))
+            }
+          }
+        },
+        onclose: () => {
+          setStreamingEnded(true)
+          saveCompletionApi([
+            ...requestMessage,
+            {
+              role: 'assistant',
+              content: messageRef.current,
+            },
+          ])
+          props.onStreamingEnded!(messageRef.current)
+        },
+      })
+    }
   }
 
   const userMessage = () => {

@@ -1,32 +1,27 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { ChatCompletionResponseMessage } from 'openai'
 import {
   apiMiddleware,
   MultipleMethodHandler,
 } from 'src/server/libs/middleware'
-import * as firebase from 'firebase-admin'
 import { firebaseAdminApp } from 'src/server/services/firebase'
 import { ChatModelDocument } from 'src/typing/firestore/models'
-import { randomUUID } from 'crypto'
 import { firestoreCollections } from 'src/constants/firebase'
+import {
+  saveFuneTineModel,
+  TuningFileDocument,
+} from 'src/server/persistants/firestore/models'
+import {
+  createFineTuning,
+  getFineTunedModelList,
+} from 'src/server/services/chatgpt/tuning'
 
 async function POST(req: NextApiRequest, response: NextApiResponse) {
   try {
-    const storageData: ChatModelDocument = {
-      id: randomUUID(),
-      createDate: firebase.firestore.Timestamp.now(),
-      tuningBy: [
-        {
-          id: randomUUID(),
-          message: 'Hello',
-          role: 'user',
-        },
-      ],
-    }
+    const payload = req.body as TuningFileDocument
 
-    const database = firebaseAdminApp.firestore()
+    const tuningResponse = await createFineTuning(payload)
 
-    database.collection(firestoreCollections.CHAT_MODELS).add(storageData)
+    await saveFuneTineModel(tuningResponse.data)
   } catch (e) {
     response.status(500).json({ message: 'Could not create chat' })
   }
@@ -36,23 +31,9 @@ async function POST(req: NextApiRequest, response: NextApiResponse) {
 }
 
 async function GET(request: NextApiRequest, response: NextApiResponse) {
-  const database = firebaseAdminApp.firestore()
+  const modelList = await getFineTunedModelList()
 
-  const query = await database
-    .collection(firestoreCollections.CHAT_MODELS)
-    .get()
-
-  if (query.docs.length > 0) {
-    const documentData: ChatModelDocument[] = []
-
-    query.docs.forEach((doc) => {
-      documentData.push(doc.data() as ChatModelDocument)
-    })
-
-    return response.status(200).json(documentData)
-  }
-
-  return response.status(200).json({})
+  return response.status(200).json(modelList.data)
 }
 
 const handler: MultipleMethodHandler = {
