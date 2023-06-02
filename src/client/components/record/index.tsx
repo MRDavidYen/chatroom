@@ -57,6 +57,7 @@ const RecordArea = ({ ...props }: RecordAreaProps) => {
             className={`${isRecording ? "bg-red-900 hover:bg-red-800" : "bg-blue-900 hover:bg-blue-800"}
             w-20 flex justify-center ml-2 rounded cursor-pointer`}
             onClick={onRecordClick}
+            type="button"
         >
             <RecordIcon
                 className="w-10 h-10"
