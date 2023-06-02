@@ -1,14 +1,38 @@
-import { NextRequest } from "next/server";
-import { ChatCompletionResponseMessage } from "openai";
+import { NextApiRequest, NextApiResponse } from 'next'
+import { ChatMessage } from 'src/client/components/chatroom'
+import {
+  apiMiddleware,
+  MultipleMethodHandler,
+} from 'src/server/libs/middleware'
+import { getTuningFiles } from 'src/server/persistants/firestore/models'
+import {
+  convertEveryTwoChatMessageToFineTuningPair,
+  createFineTuningFile,
+} from 'src/server/services/chatgpt/tuning'
 
-export async function POST(req: NextRequest) {
-    try {
-        const body: ChatCompletionResponseMessage[] = await req.json();
+async function POST(req: NextApiRequest, response: NextApiResponse) {
+  const payload = req.body as CreateFilePayload
+  const pairs = convertEveryTwoChatMessageToFineTuningPair(payload.conversions)
 
-        
-    } catch (e) {
-        return new Response(JSON.stringify({ message: "Bad Request", ex: e }), {
-            status: 400
-        })
-    }
+  await createFineTuningFile(pairs, payload.fileName)
+
+  return response.status(200).json({})
 }
+
+async function GET(req: NextApiRequest, response: NextApiResponse) {
+  const tuningFiles = await getTuningFiles()
+
+  return response.status(200).json(tuningFiles)
+}
+
+const handler: MultipleMethodHandler = {
+  POST,
+  GET
+}
+
+export type CreateFilePayload = {
+  conversions: ChatMessage[]
+  fileName: string
+}
+
+export default apiMiddleware(handler)
